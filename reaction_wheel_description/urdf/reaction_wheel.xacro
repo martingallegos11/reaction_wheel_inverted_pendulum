@@ -1,0 +1,275 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/urdf.xacro" name="reaction_wheel">
+
+<xacro:include filename="$(find reaction_wheel_description)/urdf/materials.xacro" />
+
+
+<xacro:property name="mass_base_link"                 value="0.150"/>
+<xacro:property name="mass_bottom_swingup_link"       value="0.150"/>
+<xacro:property name="mass_pendulum_arm_link"         value="0.100"/>
+<xacro:property name="mass_estator_link"              value="0.025"/>
+<xacro:property name="mass_rotor_link"                value="0.100"/>
+<xacro:property name="mass_reaction_wheel_link"       value="0.250"/>
+<xacro:property name="mass_imu_support_link"          value="0.010"/>
+
+<xacro:property name="volume_base_link"               value="0.000083"/>
+<xacro:property name="volume_bottom_swingup_link"     value="0.000079"/>
+<xacro:property name="volume_pendulum_arm_link"       value="0.000019"/>
+<xacro:property name="volume_estator_link"            value="0.000024"/>
+<xacro:property name="volume_rotor_link"              value="0.000029"/>
+<xacro:property name="volume_reaction_wheel_link"     value="0.000123"/>
+<xacro:property name="volume_imu_support_link"        value="4.12078003e-07"/>
+
+<!-- Used for fixing robot to Gazebo 'base_link' -->
+<link name="world"></link>
+
+<joint name="fixed" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link="world"/>
+  <child link="base_link"/>
+</joint>
+
+<!-- Base_link -->
+<link name="base_link"></link>
+
+<joint name="base_joint" type="fixed">
+  <origin xyz="0.0 0.0 0.0" rpy="0 0 -1.5708"/>
+  <parent link="base_link"/>
+  <child link="base_track_link"/>
+</joint>
+
+<link name="base_track_link">
+  <inertial>
+    <origin xyz="0.0 0.02144 -0.005" rpy="0 0 0"/>
+    <mass value="${mass_base_link}"/>
+    <inertia ixx="${(mass_base_link / volume_base_link) * 5.7186660000000005e-08}"  ixy="${(mass_base_link / volume_base_link) * 0.0}"                      ixz="${(mass_base_link / volume_base_link) * 0.0}" 
+             iyy="${(mass_base_link / volume_base_link) * 1.68217168e-07}"          iyz="${(mass_base_link / volume_base_link) * -3.1249000000000004e-17}"
+             izz="${(mass_base_link / volume_base_link) * 2.2402814400000002e-07}"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/base.stl"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/base.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+<!-- Bottom_swingup -->
+<joint name="bottom_swingup_joint" type="fixed">
+  <origin xyz="0 0.032 0" rpy="0 0 3.1415"/>
+  <parent link="base_track_link"/>
+  <child link="bottom_swingup_link"/>
+</joint>
+
+<link name="bottom_swingup_link">
+  <inertial>
+    <origin xyz="0.0 -0.007492 0.034894" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass_bottom_swingup_link}"/>
+    <inertia ixx="${(mass_bottom_swingup_link / volume_bottom_swingup_link) * 5.5572128000000004e-08}"  ixy="${(mass_bottom_swingup_link / volume_bottom_swingup_link) * -1.0107640800000001e-13}"   ixz="${(mass_bottom_swingup_link / volume_bottom_swingup_link) * -8.043631e-15}" 
+             iyy="${(mass_bottom_swingup_link / volume_bottom_swingup_link) * 3.8304836000000005e-08}"  iyz="${(mass_bottom_swingup_link / volume_bottom_swingup_link) * 1.4459554000000002e-08}"
+             izz="${(mass_bottom_swingup_link / volume_bottom_swingup_link) * 2.7081984000000002e-08}"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Bottom_swingup.stl"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Bottom_swingup.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+<!-- Pendulum_arm -->
+<joint name="pendulum_arm_joint" type="continuous">
+  <origin xyz="0.0 -0.04060 0.072471" rpy="0 0 -3.1415"/>
+  <parent link="bottom_swingup_link"/>
+  <child link="pendulum_arm_link"/>
+  <axis xyz="0.0 -1.0 0.0"/>
+  <limit effort="0" velocity="1000.0"/>
+  <dynamics damping="0.003" friction="0.005"/>
+</joint>
+
+<link name="pendulum_arm_link">
+  <inertial>
+    <origin xyz="-0.000018 0.005856 0.077773" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass_pendulum_arm_link}"/>
+    <inertia ixx="${(mass_pendulum_arm_link / volume_pendulum_arm_link) * 3.9527372e-08}"           ixy="${(mass_pendulum_arm_link / volume_pendulum_arm_link) * -2.96534882e-13}"   ixz="${(mass_pendulum_arm_link / volume_pendulum_arm_link) * -2.9251121094e-11}" 
+             iyy="${(mass_pendulum_arm_link / volume_pendulum_arm_link) * 4.0878812000000005e-08}"  iyz="${(mass_pendulum_arm_link / volume_pendulum_arm_link) * -7.232411875e-10}"
+             izz="${(mass_pendulum_arm_link / volume_pendulum_arm_link) * 1.6034846250000002e-09}"/>
+  </inertial>
+  <visual>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://reaction_wheel_description/meshes/Pendulum_arm.stl"/>
+      </geometry>
+      <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Pendulum_arm.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+<!-- Estator -->
+<joint name="estator_joint" type="fixed">
+  <origin xyz="0.0 0.02480 0.119917" rpy="1.5708 0.785398 3.1415"/>
+  <parent link="pendulum_arm_link"/>
+  <child link="estator_link"/>
+</joint>
+  
+<link name="estator_link">
+  <inertial>
+    <origin xyz="0.000221 -0.000221 -0.007484" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass_estator_link}"/>
+    <inertia ixx="${(mass_estator_link / volume_estator_link) * 3.78079e-09}"  ixy="${(mass_estator_link / volume_estator_link) * -7.7068625e-11}"   ixz="${(mass_estator_link / volume_estator_link) * 2.3226736328000002e-11}" 
+             iyy="${(mass_estator_link / volume_estator_link) * 3.78079e-09}"  iyz="${(mass_estator_link / volume_estator_link) * -2.3226728516e-11}"
+             izz="${(mass_estator_link / volume_estator_link) * 6.710850000000001e-09}"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Estator.stl"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+  <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Estator.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+<!-- Rotor -->
+<joint name="rotor_joint" type="continuous">
+  <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  <parent link="estator_link"/>
+  <child link="rotor_link"/>
+  <axis xyz="0.0 0.0 1.0"/>
+  <limit effort="1000" velocity="1000.0"/>
+  <dynamics damping="0.003" friction="0.005"/>
+</joint>
+
+<link name="rotor_link">
+  <inertial>
+    <origin xyz="0.0 0.0 0.008729" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass_rotor_link}"/>
+    <inertia ixx="${(mass_rotor_link / volume_rotor_link) * 4.8425775e-09}"  ixy="${(mass_rotor_link / volume_rotor_link) * 3.3300000000000003e-19}"   ixz="${(mass_rotor_link / volume_rotor_link) * 1.6039000000000002e-17}" 
+             iyy="${(mass_rotor_link / volume_rotor_link) * 4.8425775e-09}"  iyz="${(mass_rotor_link / volume_rotor_link) * -3.28e-19}"
+             izz="${(mass_rotor_link / volume_rotor_link) * 8.2165075e-09}"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Rotor.stl"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Rotor.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+<!-- Reaction wheel -->
+<joint name="reaction_wheel_joint" type="fixed">
+  <origin xyz="0.0 0.0 0.01750" rpy="1.5708 0.0 -0.785398"/>
+  <parent link="rotor_link"/>
+  <child link="reaction_wheel_link"/>
+</joint>
+
+<link name="reaction_wheel_link">
+  <inertial>
+    <origin xyz="0.0 0.009986 0.0" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass_reaction_wheel_link}"/>
+    <inertia ixx="${(mass_reaction_wheel_link / volume_reaction_wheel_link) * 2.9717174400000003e-07}"  ixy="${(mass_reaction_wheel_link / volume_reaction_wheel_link) * -2.3289100000000002e-15}"   ixz="${(mass_reaction_wheel_link / volume_reaction_wheel_link) * 4.140372e-08}" 
+             iyy="${(mass_reaction_wheel_link / volume_reaction_wheel_link) * 5.741944960000001e-07}"   iyz="${(mass_reaction_wheel_link / volume_reaction_wheel_link) * 6.511330000000001e-15}"
+             izz="${(mass_reaction_wheel_link / volume_reaction_wheel_link) * 2.9724547200000003e-07}"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Reaction_wheel.stl"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Reaction_wheel.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+<!-- Imu_Support -->
+<joint name="imu_support_joint" type="fixed">
+  <origin xyz="0.0 0.01 -0.01825" rpy="0.0 0.0 0.0"/>
+  <parent link="pendulum_arm_link"/>
+  <child link="imu_support_link"/>
+</joint>
+
+<link name="imu_support_link">
+  <inertial>
+    <origin xyz="0.000166 0.000500 0.005421" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass_imu_support_link}"/>
+    <inertia ixx="${(mass_imu_support_link / volume_imu_support_link) * 3.7226636719000007e-11}"  ixy="${(mass_imu_support_link / volume_imu_support_link) * 2.0000000000000002e-21}"   ixz="${(mass_imu_support_link / volume_imu_support_link) * 3.7161752300000003e-13}" 
+             iyy="${(mass_imu_support_link / volume_imu_support_link) * 4.4228464844e-11}"        iyz="${(mass_imu_support_link / volume_imu_support_link) * 9.000000000000001e-21}"
+             izz="${(mass_imu_support_link / volume_imu_support_link) * 7.070509766000001e-12}"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Imu_support.stl"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <geometry>
+      <mesh filename="package://reaction_wheel_description/meshes/Imu_support.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+
+<transmission name="pendulum_arm_transmission">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="pendulum_arm_joint">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="pendulum_arm_motor">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="rotor_transmission">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="rotor_joint">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="rotor_motor">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<xacro:include filename="$(find reaction_wheel_description)/urdf/reaction_wheel.gazebo.xacro"/>
+
+</robot>

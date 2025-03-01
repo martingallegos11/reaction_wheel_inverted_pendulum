@@ -1,0 +1,43 @@
+<launch>
+
+  <arg name="paused" default="true"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <arg name="control_type" default="effort"/>
+  <arg name="run_controller" default="true"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find reaction_wheel_description)/robots/reaction_wheel_sim.urdf.xacro'"/>
+
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0.15"/>
+
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+        args="-urdf -param robot_description -model reaction_wheel -x $(arg x) -y $(arg y) -z $(arg z)
+              -J pendulum_arm_joint 0.2
+              -unpause"/>
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen">
+  </node>
+
+  <rosparam file="$(find reaction_wheel_gazebo)/controller/joint_state_controller.yaml" command="load"/>
+  <rosparam file="$(find reaction_wheel_gazebo)/controller/$(arg control_type)_controller_reaction_wheel.yaml" command="load"/>
+
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="joint_state_controller"/>
+
+  <node if="$(arg run_controller)" name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="reaction_wheel_$(arg control_type)_controller"/>
+</launch>

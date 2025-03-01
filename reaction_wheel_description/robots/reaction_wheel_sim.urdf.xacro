@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<robot name="reaction_wheel" xmlns:xacro="http://www.ros.org/wiki/urdf.xacro">
+
+    <!-- Proprioceptive sensors -->
+    <xacro:include filename="$(find reaction_wheel_description)/sensors/urdf/proprioceptive_sensors.gazebo.xacro"/>
+
+    <xacro:mpu6050 parent="imu_support_link" id="1" x="0.0" y="0.001" z="0.0" roll="0.0" pitch="0.0" yaw="1.5708"/>
+
+    <xacro:include filename="$(find reaction_wheel_description)/urdf/reaction_wheel.xacro"/>
+
+
+</robot>

@@ -1,0 +1,6 @@
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+  joints:
+    - pendulum_arm_joint
+    - rotor_joint

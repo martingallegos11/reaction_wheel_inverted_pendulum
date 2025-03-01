@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="mpu6050" params="parent id x y z roll pitch yaw topic:=/imu">
+
+        <xacro:property name="mass_imu_link"                  value="0.050"/>
+        <xacro:property name="volume_imu_link"                value="3.51353363e-07"/>
+
+        <joint name="imu_${id}_joint" type="fixed" >
+        <origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}" />
+        <parent link="${parent}" />
+        <child link="imu_${id}_link"/>
+        </joint>
+
+        <link name="imu_${id}_link">
+            <inertial>
+                <origin xyz="0.000696 0.000240 0.000157" rpy="0.0 0.0 0.0"/>
+                <mass value="${mass_imu_link}"/>
+                <inertia ixx="${(mass_imu_link / volume_imu_link) * 1.5772140625e-11}"  ixy="${(mass_imu_link / volume_imu_link) * 1.5281029e-14}"   ixz="${(mass_imu_link / volume_imu_link) * -2.7933832000000002e-14}" 
+                         iyy="${(mass_imu_link / volume_imu_link) * 1.0417941406e-11}"  iyz="${(mass_imu_link / volume_imu_link) * -2.0175156000000003e-14}"
+                         izz="${(mass_imu_link / volume_imu_link) * 5.513003418000001e-12}"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+                <geometry>
+                <mesh filename="package://reaction_wheel_description/sensors/meshes/MPU6050.stl"/>
+                </geometry>
+                <material name="silver"/>
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                <mesh filename="package://reaction_wheel_description/sensors/meshes/MPU6050.stl"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <gazebo reference="imu_${id}_link">
+           <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+            <selfCollide>true</selfCollide>
+            <turnGravityOff>false</turnGravityOff>
+            <sensor name="imu_sensor" type="imu">
+                <always_on>true</always_on>
+                <update_rate>100</update_rate>
+                <visualize>true</visualize>
+                <topic>${topic}</topic>
+                <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+                <topicName>${topic}</topicName>
+                <bodyName>imu_${id}_link</bodyName>
+                <updateRateHZ>100.0</updateRateHZ>
+                <gaussianNoise>0.005</gaussianNoise>
+                <xyzOffset>0 0 0</xyzOffset>
+                <rpyOffset>0 0 0</rpyOffset>
+                <frameName>imu_${id}_link</frameName>
+                </plugin>
+                <pose>0 0 0 0 0 0</pose>
+            </sensor>
+        </gazebo>
+
+    </xacro:macro>
+</robot>

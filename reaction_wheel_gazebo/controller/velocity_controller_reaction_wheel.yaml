@@ -1,0 +1,4 @@
+reaction_wheel_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: "rotor_joint"
+  gain: {p: 20.0, i: 0.0, d: 0.0}
